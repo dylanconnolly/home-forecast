@@ -17,9 +17,14 @@ func main() {
 	}
 	gc := http.NewGoogleOauthClient()
 	gc.RefreshAccessToken()
-	fmt.Printf("refreshed token\n %+v", gc.Config.AccessToken)
 	nc := http.NewNestClient()
-	nc.GetDevices(gc.Config.AccessToken)
+	// nc.GetDevices(gc.Config.AccessToken)
+	device, err := nc.GetDevice(gc.Config.AccessToken, os.Getenv("DEVICE_ID"))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(device)
 }
 
 func LoadEnvFile() error {

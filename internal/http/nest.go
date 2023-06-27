@@ -1,10 +1,13 @@
 package http
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/dylanconnolly/home-forecast/internal/device"
 )
 
 const nestURL = "https://smartdevicemanagement.googleapis.com/v1/enterprises/bbd8babc-56b8-4591-b429-020f5cf9d4bc"
@@ -53,4 +56,24 @@ func (nc *NestClient) GetDevices(token string) error {
 
 	fmt.Println(string(body))
 	return nil
+}
+
+func (nc *NestClient) GetDevice(token, id string) (*device.Nest, error) {
+	var device device.Nest
+	req, err := nc.newRequest(token, http.MethodGet, "/devices/"+id, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := nc.HttpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error requesting device ID=%s: %s", id, err)
+	}
+	defer resp.Body.Close()
+
+	if err := json.NewDecoder(resp.Body).Decode(&device); err != nil {
+		return nil, fmt.Errorf("error scanning into nest device: %s", err)
+	}
+
+	return &device, nil
 }
