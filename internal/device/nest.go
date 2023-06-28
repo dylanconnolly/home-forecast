@@ -41,3 +41,12 @@ type EcoTraits struct {
 type NestCurrentTemp struct {
 	AmbientTemperatureCelsius float64 `json:"ambientTemperatureCelsius"`
 }
+
+func (n *Nest) GetCurrentTempC() (float64, error) {
+	return n.Traits.CurrentTemp.AmbientTemperatureCelsius, nil
+}
+
+func (n *Nest) GetCurrentTempF() (int8, error) {
+	f := (n.Traits.CurrentTemp.AmbientTemperatureCelsius * 1.8) + 32
+	return int8(f), nil
+}

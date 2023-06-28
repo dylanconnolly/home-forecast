@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
+	"github.com/dylanconnolly/home-forecast/internal/controller"
 	"github.com/dylanconnolly/home-forecast/internal/http"
 	"github.com/joho/godotenv"
 )
@@ -19,13 +21,40 @@ func main() {
 	gc.RefreshAccessToken()
 	nc := http.NewNestClient()
 	// nc.GetDevices(gc.Config.AccessToken)
-	device, err := nc.GetDevice(gc.Config.AccessToken, os.Getenv("DEVICE_ID"))
-	if err != nil {
-		fmt.Println(err)
+	// device, err := nc.GetDevice(gc.Config.AccessToken, os.Getenv("DEVICE_ID"))
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	// fmt.Println(device)
+	// temp, err := device.GetCurrentTempF()
+	// fmt.Println(temp)
+
+	hc := controller.HomeController{
+		NestService:  nc,
+		OauthService: gc,
 	}
 
-	fmt.Println(device)
+	hc.Start()
+	hc.Run()
+
+	for {
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		wg.Wait()
+	}
+
+	// device, err := hc.NestService.GetDevice(hc.OauthService.AccessToken(), os.Getenv("DEVICE_ID"))
+	// if err != nil {
+	// 	log.Fatalf("error getting device: %s", err)
+	// }
+
+	// fmt.Printf("device details:\n%+v", device)
 }
+
+// func Run() {
+// 	time.Sleep(1000)
+// }
 
 func LoadEnvFile() error {
 	if err := godotenv.Load(); err != nil {

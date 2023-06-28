@@ -77,3 +77,7 @@ func (gc *GoogleOauthClient) RefreshAccessToken() error {
 
 	return nil
 }
+
+func (gc *GoogleOauthClient) AccessToken() string {
+	return gc.Config.AccessToken
+}
