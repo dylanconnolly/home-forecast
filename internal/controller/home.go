@@ -25,9 +25,9 @@ func (c *HomeController) Start() error {
 }
 
 func (c *HomeController) Run() {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(10 * time.Minute)
 	// initialCall := time.NewTicker(500 * time.Millisecond)
-	minuteInterval := time.NewTicker(3 * time.Second)
+	minuteInterval := time.NewTicker(60 * time.Second)
 	updates := make(chan *device.Nest)
 	// defer ticker.Stop()
 	// defer minuteInterval.Stop()
@@ -56,6 +56,14 @@ func (c *HomeController) Run() {
 				// 	fmt.Println(minuteCounter)
 			}
 		}
+	}()
+
+	go func() {
+		fmt.Println("doing initial poll")
+		if err := c.PollAndUpdateThermostat(); err != nil {
+			fmt.Println(err)
+		}
+		updates <- c.Thermostat
 	}()
 
 	go func() {
